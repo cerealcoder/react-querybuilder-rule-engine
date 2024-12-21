@@ -1,0 +1,8 @@
+version: '3.9'
+services:
+  app:
+    image: node:18
+    volumes:
+      - ./:/home/code/
+      - ${HOME}/.npm/.npmrc:/root/.npmrc/:ro
+    working_dir: /home/code/
