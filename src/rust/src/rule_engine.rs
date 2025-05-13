@@ -16,27 +16,27 @@ pub enum PropertyType {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Rule {
-    field: String,
-    operator: String,
-    value_source: String,
-    value: String,
+    pub field: String,
+    pub operator: String,
+    pub value_source: String,
+    pub value: String,
 }
 
 // Define a rule group
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct RuleGroup {
-    rules: Vec<RuleOrGroup>,
-    combinator: String,
-    not: bool,
+    pub rules: Vec<RuleOrGroup>,
+    pub combinator: String,
+    pub not: bool,
 }
 
 // Enum for Rule or RuleGroup
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub enum RuleOrGroup {
-    Rule(Rule),
-    Group(RuleGroup),
+    pub Rule(Rule),
+    pub Group(RuleGroup),
 }
 
 // Define the query
@@ -49,11 +49,11 @@ pub struct Query {
 
 // Business object and property types
 pub struct BusinessObject {
-    properties: HashMap<String, String>,
+    pub properties: HashMap<String, String>,
 }
 
 pub struct BusinessObjectPropertyTypes {
-    types: HashMap<String, PropertyType>,
+    pub types: HashMap<String, PropertyType>,
 }
 
 // Evaluate a single rule
