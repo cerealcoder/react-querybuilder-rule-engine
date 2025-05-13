@@ -35,8 +35,8 @@ pub struct RuleGroup {
 #[derive(Debug, Deserialize)]
 #[serde(untagged)]
 pub enum RuleOrGroup {
-    pub Rule(Rule),
-    pub Group(RuleGroup),
+    Rule(Rule),
+    Group(RuleGroup),
 }
 
 // Define the query
