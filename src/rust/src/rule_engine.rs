@@ -48,10 +48,12 @@ pub struct Query {
 }
 
 // Business object and property types
+#[derive(Debug)]
 pub struct BusinessObject {
     pub properties: HashMap<String, String>,
 }
 
+#[derive(Debug)]
 pub struct BusinessObjectPropertyTypes {
     pub types: HashMap<String, PropertyType>,
 }
