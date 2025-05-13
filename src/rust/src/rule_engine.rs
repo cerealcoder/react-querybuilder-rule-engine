@@ -99,6 +99,44 @@ pub fn evaluate_rule(
         PropertyType::String => match rule.operator.as_str() {
             "=" => Ok(lho.eq_ignore_ascii_case(&rule.value)),
             "!=" => Ok(!lho.eq_ignore_ascii_case(&rule.value)),
+            "contains" => {
+                let regex = regex::Regex::new(&format!(r"(?i){}", regex::escape(&rule.value))).map_err(|e| e.to_string())?;
+                Ok(regex.is_match(lho))
+            }
+            "doesNotContain" => {
+                let regex = regex::Regex::new(&format!(r"(?i){}", regex::escape(&rule.value))).map_err(|e| e.to_string())?;
+                Ok(!regex.is_match(lho))
+            }
+            "beginsWith" => {
+                let regex = regex::Regex::new(&format!(r"(?i)^{}", regex::escape(&rule.value))).map_err(|e| e.to_string())?;
+                Ok(regex.is_match(lho))
+            }
+            "doesNotBeginWith" => {
+                let regex = regex::Regex::new(&format!(r"(?i)^{}", regex::escape(&rule.value))).map_err(|e| e.to_string())?;
+                Ok(!regex.is_match(lho))
+            }
+            "endsWith" => {
+                let regex = regex::Regex::new(&format!(r"(?i){}$", regex::escape(&rule.value))).map_err(|e| e.to_string())?;
+                Ok(regex.is_match(lho))
+            }
+            "doesNotEndWith" => {
+                let regex = regex::Regex::new(&format!(r"(?i){}$", regex::escape(&rule.value))).map_err(|e| e.to_string())?;
+                Ok(!regex.is_match(lho))
+            }
+            "in" => {
+                let rule_value_lowercase = rule.value.to_lowercase(); // Store the lowercase value
+                let values: Vec<&str> = rule_value_lowercase.split(',').collect();
+                let lho_lowercase = lho.to_lowercase(); // Store the lowercase value of lho
+                Ok(values.contains(&lho_lowercase.as_str()))
+            }
+            "notIn" => {
+                let rule_value_lowercase = rule.value.to_lowercase(); // Store the lowercase value
+                let values: Vec<&str> = rule_value_lowercase.split(',').collect();
+                let lho_lowercase = lho.to_lowercase(); // Store the lowercase value of lho
+                Ok(!values.contains(&lho_lowercase.as_str()))
+            }
+            "isNull" => Ok(lho.is_empty()),
+            "isNotNull" => Ok(!lho.is_empty()),
             _ => Err(format!("Unsupported operator: {}", rule.operator)),
         },
         PropertyType::Select => match rule.operator.as_str() {
@@ -431,6 +469,98 @@ mod tests {
 
 
         // Evaluate the rules
+        let result = evaluate_rules(&business_object, &query.rules, &query.combinator, &property_types);
+        assert_eq!(result, Ok(true));
+    }
+
+    #[test]
+    fn test_string_operators_with_case_insensitivity() {
+        let business_object = BusinessObject {
+            properties: HashMap::from([
+                ("name".to_string(), "Mustang".to_string()),
+                ("description".to_string(), "A classic car".to_string()),
+                ("category".to_string(), "Sports".to_string()),
+                ("emptyField".to_string(), "".to_string()),
+            ]),
+        };
+
+        let property_types = BusinessObjectPropertyTypes {
+            types: HashMap::from([
+                ("name".to_string(), PropertyType::String),
+                ("description".to_string(), PropertyType::String),
+                ("category".to_string(), PropertyType::String),
+                ("emptyField".to_string(), PropertyType::String),
+            ]),
+        };
+
+        let query = Query {
+            combinator: "and".to_string(),
+            rules: vec![
+                RuleOrGroup::Rule(Rule {
+                    field: "name".to_string(),
+                    operator: "contains".to_string(),
+                    value_source: "value".to_string(),
+                    value: "must".to_string(), // Case-insensitive match
+                }),
+                RuleOrGroup::Rule(Rule {
+                    field: "description".to_string(),
+                    operator: "doesNotContain".to_string(),
+                    value_source: "value".to_string(),
+                    value: "truck".to_string(), // Case-insensitive mismatch
+                }),
+                RuleOrGroup::Rule(Rule {
+                    field: "name".to_string(),
+                    operator: "beginsWith".to_string(),
+                    value_source: "value".to_string(),
+                    value: "mus".to_string(), // Case-insensitive match
+                }),
+                RuleOrGroup::Rule(Rule {
+                    field: "name".to_string(),
+                    operator: "doesNotBeginWith".to_string(),
+                    value_source: "value".to_string(),
+                    value: "car".to_string(), // Case-insensitive mismatch
+                }),
+                RuleOrGroup::Rule(Rule {
+                    field: "name".to_string(),
+                    operator: "endsWith".to_string(),
+                    value_source: "value".to_string(),
+                    value: "TANG".to_string(), // Case-insensitive match
+                }),
+                RuleOrGroup::Rule(Rule {
+                    field: "name".to_string(),
+                    operator: "doesNotEndWith".to_string(),
+                    value_source: "value".to_string(),
+                    value: "car".to_string(), // Case-insensitive mismatch
+                }),
+                RuleOrGroup::Rule(Rule {
+                    field: "category".to_string(),
+                    operator: "in".to_string(),
+                    value_source: "value".to_string(),
+                    value: "sports,convertible".to_string(), // Case-insensitive match
+                }),
+                RuleOrGroup::Rule(Rule {
+                    field: "category".to_string(),
+                    operator: "notIn".to_string(),
+                    value_source: "value".to_string(),
+                    value: "truck,suv".to_string(), // Case-insensitive mismatch
+                }),
+                RuleOrGroup::Rule(Rule {
+                    field: "emptyField".to_string(),
+                    operator: "isNull".to_string(),
+                    value_source: "value".to_string(),
+                    value: "".to_string(), // Field is empty
+                }),
+                RuleOrGroup::Rule(Rule {
+                    field: "name".to_string(),
+                    operator: "isNotNull".to_string(),
+                    value_source: "value".to_string(),
+                    value: "".to_string(), // Field is not empty
+                }),
+                /*
+                */
+            ],
+        };
+
         let result = evaluate_rules(&business_object, &query.rules, &query.combinator, &property_types);
         assert_eq!(result, Ok(true));
     }
