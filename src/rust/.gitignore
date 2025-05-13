@@ -1,0 +1,29 @@
+# Compiled Files
+/target/
+/git/
+
+# Cargo.lock should be included in version control
+# however, it is sometimes modified by external tools
+# See https://doc.rust-lang.org/cargo/faq.html#cargolock
+Cargo.lock
+
+# IDE/Editor specific files
+.idea/
+.vscode/
+bin/
+
+# Dependency directories
+# /.cargo/
+
+# registry
+/registry
+/.package-cache
+/.package-cache
+/.package-cache-mutate
+/.global-cache
+
+# run-time for our app
+config.json
+upgrade-signal
+
+src/tmpfs/

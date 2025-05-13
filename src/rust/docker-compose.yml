@@ -1,0 +1,13 @@
+services:
+  rule_builder:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      RUST_BACKTRACE: full
+      CARGO_HOME: /app
+    working_dir: /app
+    volumes:
+      - .:/app
+    tmpfs:
+      - /app/src/tmpfs
