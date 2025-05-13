@@ -43,8 +43,8 @@ pub enum RuleOrGroup {
 #[derive(Debug, Deserialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Query {
-    combinator: String,
-    rules: Vec<RuleOrGroup>,
+    pub combinator: String,
+    pub rules: Vec<RuleOrGroup>,
 }
 
 // Business object and property types
