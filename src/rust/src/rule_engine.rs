@@ -99,40 +99,22 @@ pub fn evaluate_rule(
         PropertyType::String => match rule.operator.as_str() {
             "=" => Ok(lho.eq_ignore_ascii_case(&rule.value)),
             "!=" => Ok(!lho.eq_ignore_ascii_case(&rule.value)),
-            "contains" => {
-                let regex = regex::Regex::new(&format!(r"(?i){}", regex::escape(&rule.value))).map_err(|e| e.to_string())?;
-                Ok(regex.is_match(lho))
-            }
-            "doesNotContain" => {
-                let regex = regex::Regex::new(&format!(r"(?i){}", regex::escape(&rule.value))).map_err(|e| e.to_string())?;
-                Ok(!regex.is_match(lho))
-            }
-            "beginsWith" => {
-                let regex = regex::Regex::new(&format!(r"(?i)^{}", regex::escape(&rule.value))).map_err(|e| e.to_string())?;
-                Ok(regex.is_match(lho))
-            }
-            "doesNotBeginWith" => {
-                let regex = regex::Regex::new(&format!(r"(?i)^{}", regex::escape(&rule.value))).map_err(|e| e.to_string())?;
-                Ok(!regex.is_match(lho))
-            }
-            "endsWith" => {
-                let regex = regex::Regex::new(&format!(r"(?i){}$", regex::escape(&rule.value))).map_err(|e| e.to_string())?;
-                Ok(regex.is_match(lho))
-            }
-            "doesNotEndWith" => {
-                let regex = regex::Regex::new(&format!(r"(?i){}$", regex::escape(&rule.value))).map_err(|e| e.to_string())?;
-                Ok(!regex.is_match(lho))
-            }
+            "contains" => Ok(lho.to_lowercase().contains(&rule.value.to_lowercase())),
+            "doesNotContain" => Ok(!lho.to_lowercase().contains(&rule.value.to_lowercase())),
+            "beginsWith" => Ok(lho.to_lowercase().starts_with(&rule.value.to_lowercase())),
+            "doesNotBeginWith" => Ok(!lho.to_lowercase().starts_with(&rule.value.to_lowercase())),
+            "endsWith" => Ok(lho.to_lowercase().ends_with(&rule.value.to_lowercase())),
+            "doesNotEndWith" => Ok(!lho.to_lowercase().ends_with(&rule.value.to_lowercase())),
             "in" => {
-                let rule_value_lowercase = rule.value.to_lowercase(); // Store the lowercase value
+                let rule_value_lowercase = rule.value.to_lowercase();
                 let values: Vec<&str> = rule_value_lowercase.split(',').collect();
-                let lho_lowercase = lho.to_lowercase(); // Store the lowercase value of lho
+                let lho_lowercase = lho.to_lowercase();
                 Ok(values.contains(&lho_lowercase.as_str()))
             }
             "notIn" => {
-                let rule_value_lowercase = rule.value.to_lowercase(); // Store the lowercase value
+                let rule_value_lowercase = rule.value.to_lowercase();
                 let values: Vec<&str> = rule_value_lowercase.split(',').collect();
-                let lho_lowercase = lho.to_lowercase(); // Store the lowercase value of lho
+                let lho_lowercase = lho.to_lowercase();
                 Ok(!values.contains(&lho_lowercase.as_str()))
             }
             "isNull" => Ok(lho.is_empty()),
